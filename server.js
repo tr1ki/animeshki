@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 
 // Load environment variables
 dotenv.config();
@@ -17,8 +18,13 @@ const reviewRoutes = require('./routes/reviews');
 
 const app = express();
 
-// Connect to database
-connectDB();
+// Serve static files from frontend folder
+app.use(express.static(path.join(__dirname, 'frontend')));
+
+// Connect to database (non-blocking)
+connectDB().catch(err => {
+  console.log('Database connection failed, running in offline mode');
+});
 
 // Middleware
 app.use(cors());
@@ -30,6 +36,11 @@ app.use('/api/users', userRoutes);
 app.use('/api/anime', animeRoutes);
 app.use('/api/manga', mangaRoutes);
 app.use('/api/reviews', reviewRoutes);
+
+// Serve frontend
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
