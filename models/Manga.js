@@ -85,6 +85,19 @@ const mangaSchema = new mongoose.Schema({
     default: 'pending',
     index: true
   },
+  cover: {
+    fileId: {
+      type: String,
+      trim: true
+    },
+    filename: {
+      type: String,
+      trim: true
+    },
+    uploadedAt: {
+      type: Date
+    }
+  },
   files: {
     type: [mangaFileSchema],
     default: []

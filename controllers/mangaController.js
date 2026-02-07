@@ -15,6 +15,8 @@ const ALLOWED_MIME_TYPES = new Set([
   'image/gif'
 ]);
 const ALLOWED_EXTENSIONS = new Set(['.pdf', '.zip', '.jpg', '.jpeg', '.png', '.webp', '.gif']);
+const IMAGE_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif']);
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -28,6 +30,26 @@ const upload = multer({
 
     if (!mimeAllowed || !extensionAllowed) {
       const error = new Error('Unsupported file type. Allowed: zip, pdf, images');
+      error.statusCode = 400;
+      return cb(error);
+    }
+
+    return cb(null, true);
+  }
+});
+
+const coverUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: MAX_UPLOAD_SIZE_BYTES
+  },
+  fileFilter: (req, file, cb) => {
+    const extension = path.extname(file.originalname || '').toLowerCase();
+    const mimeAllowed = IMAGE_MIME_TYPES.has(file.mimetype);
+    const extensionAllowed = IMAGE_EXTENSIONS.has(extension);
+
+    if (!mimeAllowed || !extensionAllowed) {
+      const error = new Error('Unsupported cover type. Allowed: images only');
       error.statusCode = 400;
       return cb(error);
     }
@@ -270,6 +292,10 @@ const uploadMangaFile = async (req, res, next) => {
       return res.status(403).json({ message: 'Only owner can upload files for this manga' });
     }
 
+    if (!manga.cover || !manga.cover.fileId) {
+      return res.status(400).json({ message: 'Upload cover before pages' });
+    }
+
     const kind = getFileKind(req.file);
 
     if (!kind) {
@@ -344,6 +370,126 @@ const uploadMangaFile = async (req, res, next) => {
       status: manga.status,
       file: mapMangaFile(manga._id, newFile)
     });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+const uploadMangaCover = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!isObjectId(id)) {
+      return res.status(400).json({ message: 'Invalid manga id' });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ message: 'Cover image is required. Use multipart/form-data with field "file"' });
+    }
+
+    const manga = await Manga.findById(id);
+
+    if (!manga) {
+      return res.status(404).json({ message: 'Manga not found' });
+    }
+
+    if (!isOwner(manga, req.user.id) && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Only owner or admin can upload cover for this manga' });
+    }
+
+    const { bucket } = getGridFSResources();
+    const filename = `${manga._id}-cover-${Date.now()}-${sanitizeFilename(req.file.originalname)}`;
+    const uploadStream = bucket.openUploadStream(filename, {
+      contentType: req.file.mimetype,
+      metadata: {
+        mangaId: manga._id.toString(),
+        ownerId: manga.owner.toString(),
+        uploadedBy: req.user.id,
+        kind: 'cover',
+        originalName: req.file.originalname
+      }
+    });
+
+    await new Promise((resolve, reject) => {
+      uploadStream.on('error', reject);
+      uploadStream.on('finish', resolve);
+      uploadStream.end(req.file.buffer);
+    });
+
+    if (manga.cover && manga.cover.fileId && isObjectId(manga.cover.fileId)) {
+      try {
+        await bucket.delete(new mongoose.Types.ObjectId(manga.cover.fileId));
+      } catch (error) {
+        if (error.code !== 26) {
+          throw error;
+        }
+      }
+    }
+
+    manga.cover = {
+      fileId: uploadStream.id.toString(),
+      filename,
+      uploadedAt: new Date()
+    };
+
+    manga.status = 'pending';
+    manga.moderatedBy = undefined;
+    manga.moderatedAt = undefined;
+    manga.rejectionReason = undefined;
+
+    await manga.save();
+
+    return res.status(201).json({
+      message: 'Cover uploaded successfully',
+      coverUrl: `/api/manga/${manga._id}/cover`
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+const getMangaCover = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!isObjectId(id)) {
+      return res.status(400).json({ message: 'Invalid manga id' });
+    }
+
+    const manga = await Manga.findById(id);
+
+    if (!manga || manga.status !== 'approved') {
+      return res.status(404).json({ message: 'Cover not found' });
+    }
+
+    if (!manga.cover || !manga.cover.fileId) {
+      return res.status(404).json({ message: 'Cover not found' });
+    }
+
+    if (!isObjectId(manga.cover.fileId)) {
+      return res.status(404).json({ message: 'Cover not found' });
+    }
+
+    const { bucket, filesCollection } = getGridFSResources();
+    const coverObjectId = new mongoose.Types.ObjectId(manga.cover.fileId);
+    const storedFile = await filesCollection.findOne({ _id: coverObjectId });
+
+    if (!storedFile) {
+      return res.status(404).json({ message: 'Cover not found' });
+    }
+
+    res.setHeader('Content-Type', storedFile.contentType || 'application/octet-stream');
+    const downloadStream = bucket.openDownloadStream(coverObjectId);
+
+    downloadStream.on('error', (error) => {
+      if (!res.headersSent) {
+        return res.status(404).json({ message: 'Could not read cover stream' });
+      }
+
+      return next(error);
+    });
+
+    return downloadStream.pipe(res);
   } catch (error) {
     return next(error);
   }
@@ -534,12 +680,25 @@ const deleteManga = async (req, res, next) => {
       return res.status(404).json({ message: 'Manga not found' });
     }
 
-    if (!isOwner(manga, req.user.id) && req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Only owner or admin can delete manga' });
+    const canDelete = isOwner(manga, req.user.id) || ['admin', 'moderator'].includes(req.user.role);
+
+    if (!canDelete) {
+      return res.status(403).json({ message: 'You do not have permission to delete this manga' });
+    }
+
+    const { bucket } = getGridFSResources();
+
+    if (manga.cover && manga.cover.fileId && isObjectId(manga.cover.fileId)) {
+      try {
+        await bucket.delete(new mongoose.Types.ObjectId(manga.cover.fileId));
+      } catch (error) {
+        if (error.code !== 26) {
+          throw error;
+        }
+      }
     }
 
     if (manga.files.length) {
-      const { bucket } = getGridFSResources();
 
       await Promise.all(
         manga.files.map(async (file) => {
@@ -556,22 +715,26 @@ const deleteManga = async (req, res, next) => {
 
     await manga.deleteOne();
 
-    return res.json({ message: 'Manga and related GridFS files deleted successfully' });
+    return res.json({ message: 'Manga deleted successfully' });
   } catch (error) {
     return next(error);
   }
 };
 
 const handleMangaUpload = upload.single('file');
+const handleCoverUpload = coverUpload.single('file');
 
 module.exports = {
   handleMangaUpload,
+  handleCoverUpload,
   getPublicManga,
   getPublicMangaById,
   getMyManga,
   createManga,
   updateManga,
+  uploadMangaCover,
   uploadMangaFile,
+  getMangaCover,
   getMangaPages,
   getPendingManga,
   approveManga,

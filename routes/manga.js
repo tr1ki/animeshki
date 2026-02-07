@@ -1,11 +1,14 @@
 const express = require('express');
 const {
+  handleCoverUpload,
   handleMangaUpload,
   getPublicManga,
   getPublicMangaById,
   getMyManga,
   createManga,
+  uploadMangaCover,
   uploadMangaFile,
+  getMangaCover,
   getMangaPages,
   getPendingManga,
   approveManga,
@@ -34,7 +37,9 @@ router.get('/pending', auth, role('moderator', 'admin'), getPendingManga);
 router.post('/', auth, role('user', 'moderator', 'admin'), createManga);
 router.patch('/:id/approve', auth, role('moderator', 'admin'), approveManga);
 router.patch('/:id/reject', auth, role('moderator', 'admin'), rejectManga);
+router.post('/:id/cover', auth, role('user', 'moderator', 'admin'), handleCoverUpload, uploadMangaCover);
 router.post('/:id/upload', auth, role('user', 'moderator', 'admin'), handleMangaUpload, uploadMangaFile);
+router.get('/:id/cover', getMangaCover);
 router.get('/:id/pages', optionalAuth, getMangaPages);
 router.get('/:id', getPublicMangaById);
 router.delete('/:id', auth, role('user', 'moderator', 'admin'), deleteManga);
