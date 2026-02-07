@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Animeshki | Manga Reader</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="./index.html">Animeshki</a>
+      <nav class="nav-links">
+        <a href="./index.html">Back to list</a>
+        <a href="./login.html" id="loginLink">Login</a>
+        <button id="logoutButton" class="button button-ghost hidden" type="button">Logout</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="section">
+      <div class="container">
+        <div id="mangaFeedback" class="feedback hidden"></div>
+
+        <article class="panel manga-meta" id="mangaMeta">
+          <p class="eyebrow">Manga Details</p>
+          <h1 id="mangaTitle">Loading...</h1>
+          <p id="mangaDescription"></p>
+          <div class="meta-grid">
+            <p><strong>Genre:</strong> <span id="mangaGenre">-</span></p>
+            <p><strong>Release Year:</strong> <span id="mangaYear">-</span></p>
+            <p><strong>Status:</strong> <span id="mangaStatus">-</span></p>
+            <p><strong>Owner:</strong> <span id="mangaOwner">-</span></p>
+          </div>
+          <div class="meta-actions">
+            <button id="editButton" class="button button-ghost hidden" type="button">Edit Manga</button>
+            <button id="deleteButton" class="button button-danger hidden" type="button">Delete Manga</button>
+            <button id="approveButton" class="button button-secondary hidden" type="button">Approve Manga</button>
+            <button id="rejectButton" class="button button-danger hidden" type="button">Reject Manga</button>
+          </div>
+        </article>
+
+        <form id="editForm" class="panel form-grid hidden edit-form">
+          <label>
+            Title
+            <input id="editTitle" type="text" required>
+          </label>
+          <label>
+            Genre (comma separated)
+            <input id="editGenre" type="text" required>
+          </label>
+          <label>
+            Chapters
+            <input id="editChapters" type="number" min="1" required>
+          </label>
+          <label>
+            Release Year
+            <input id="editReleaseYear" type="number" min="1900" max="2100" required>
+          </label>
+          <label class="full-row">
+            Description
+            <textarea id="editDescription" rows="4" required></textarea>
+          </label>
+          <div class="full-row">
+            <button id="editSubmitButton" class="button button-primary" type="submit">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section class="section reader-section">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Reader</h2>
+          <p>Vertical reading layout streamed from GridFS.</p>
+        </div>
+        <div id="readerFeedback" class="feedback hidden"></div>
+        <div id="readerContainer" class="reader-container"></div>
+        <div id="attachmentsContainer" class="attachments"></div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="./js/manga-page.js"></script>
+</body>
+</html>

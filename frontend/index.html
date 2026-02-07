@@ -1,71 +1,136 @@
 <!doctype html>
 <html lang="en">
-
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Animeshki — Anime & Manga</title>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Nunito+Sans:wght@400;700&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Animeshki | Manga Hub</title>
+  <link rel="stylesheet" href="./styles.css">
 </head>
-
 <body>
-    <header class="site-header">
-        <div class="container header-inner">
-            <div class="logo">Animeshki</div>
-            <nav class="nav">
-                <a href="#">Home</a>
-                <a href="#anime">Anime</a>
-                <a href="#manga">Manga</a>
-                <a href="#reviews">Reviews</a>
-                <a class="btn-login" href="#login">Login</a>
-            </nav>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="./index.html">Animeshki</a>
+      <nav class="nav-links">
+        <a href="./index.html#approved">Approved Manga</a>
+        <a href="./index.html#uploadSection" id="uploadAnchor" class="hidden">Upload Manga</a>
+        <a href="./login.html" id="loginLink">Login</a>
+        <button id="logoutButton" class="button button-ghost hidden" type="button">Logout</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-overlay"></div>
+      <div class="container hero-inner">
+        <p class="eyebrow">Real API Integration</p>
+        <h1>Read. Upload. Moderate.</h1>
+        <p class="hero-text">
+          Browse approved manga from the backend, upload your own chapters, and moderate pending releases.
+        </p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#approved">Explore Manga</a>
+          <a class="button button-ghost" href="./login.html">Login / Register</a>
         </div>
-    </header>
+      </div>
+    </section>
 
-    <main>
-        <section class="hero">
-            <div class="hero-overlay"></div>
-            <div class="container hero-inner">
-                <h1 class="hero-title">Dive Into The Worlds You Love</h1>
-                <p class="hero-sub">Discover trending anime & manga, community reviews, and curated picks — all in one
-                    cinematic experience.</p>
-                <div class="hero-cta">
-                    <a id="exploreBtn" class="btn-cta" href="#anime">Explore now</a>
-                </div>
-            </div>
-        </section>
-
-        <section id="anime" class="section">
-            <div class="container">
-                <h2 class="section-title">Popular Anime</h2>
-                <div id="animeGrid" class="grid"></div>
-            </div>
-        </section>
-
-        <section id="manga" class="section">
-            <div class="container">
-                <h2 class="section-title">Popular Manga</h2>
-                <div id="mangaGrid" class="grid"></div>
-            </div>
-        </section>
-    </main>
-
-    <footer class="site-footer">
-        <div class="container footer-inner">
-            <div>© <span id="year"></span> Animeshki — All rights reserved.</div>
-            <div class="socials">
-                <a href="#">Twitter</a>
-                <a href="#">Discord</a>
-                <a href="#">Instagram</a>
-            </div>
+    <section class="section" id="approved">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Approved Manga</h2>
+          <p>Public catalog from <code>GET /api/manga</code>.</p>
         </div>
-    </footer>
+        <div id="approvedFeedback" class="feedback hidden"></div>
+        <div id="approvedGrid" class="card-grid"></div>
+      </div>
+    </section>
 
-    <script src="app.js"></script>
+    <section class="section hidden" id="uploadSection">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Upload Manga</h2>
+          <p>Create manga first, then upload files to GridFS.</p>
+        </div>
+
+        <form id="uploadForm" class="panel form-grid">
+          <label>
+            Title
+            <input type="text" id="titleInput" required>
+          </label>
+          <label>
+            Genre (comma separated)
+            <input type="text" id="genreInput" placeholder="Action, Drama, Fantasy" required>
+          </label>
+          <label>
+            Chapters
+            <input type="number" id="chaptersInput" min="1" value="1" required>
+          </label>
+          <label>
+            Release Year
+            <input type="number" id="releaseYearInput" min="1900" max="2100" required>
+          </label>
+          <label class="full-row">
+            Description
+            <textarea id="descriptionInput" rows="4" required></textarea>
+          </label>
+
+          <div class="full-row upload-steps">
+            <div class="step">
+              <p class="step-title">Step 0: Create Manga</p>
+              <button class="button button-primary" id="createMangaButton" type="button">Create Manga</button>
+            </div>
+
+            <div class="step">
+              <p class="step-title">Step 1: Upload Cover (required)</p>
+              <input type="file" id="coverInput" accept=".jpg,.jpeg,.png,.webp,.gif" disabled>
+              <button class="button button-secondary" id="coverUploadButton" type="button" disabled>Upload Cover</button>
+            </div>
+
+            <div class="step">
+              <p class="step-title">Step 2: Upload Pages</p>
+              <input type="file" id="pagesInput" accept=".jpg,.jpeg,.png,.webp,.gif,.pdf,.zip" multiple disabled>
+              <button class="button button-primary" id="pagesUploadButton" type="button" disabled>Upload Pages</button>
+            </div>
+          </div>
+
+          <div class="full-row form-actions">
+            <span id="uploadStatus" class="status-text"></span>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section class="section hidden" id="myMangaSection">
+      <div class="container">
+        <div class="section-heading">
+          <h2>My Manga</h2>
+          <p>Your submissions and moderation status.</p>
+        </div>
+        <div id="myMangaFeedback" class="feedback hidden"></div>
+        <div id="myMangaGrid" class="card-grid"></div>
+      </div>
+    </section>
+
+    <section class="section hidden" id="moderationSection">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Moderation Queue</h2>
+          <p>Pending manga visible to moderator/admin users.</p>
+        </div>
+        <div id="moderationFeedback" class="feedback hidden"></div>
+        <div id="pendingGrid" class="card-grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>Copyright <span id="year"></span> Animeshki</p>
+      <p>Backend: <code>http://localhost:3000</code></p>
+    </div>
+  </footer>
+
+  <script type="module" src="./js/index.js"></script>
 </body>
-
 </html>
