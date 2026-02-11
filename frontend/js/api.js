@@ -1,4 +1,4 @@
-export const API_BASE_URL = "http://localhost:3000/api";
+export const API_BASE_URL = "/api";
 
 export class ApiError extends Error {
   constructor(message, status = 0, details = null) {
@@ -92,7 +92,7 @@ export const apiRequest = async (
   try {
     response = await fetch(url, options);
   } catch (error) {
-    throw new ApiError("Network error. Check backend availability at http://localhost:3000.");
+    throw new ApiError("Network error. Check backend availability.");
   }
 
   if (!response.ok) {
