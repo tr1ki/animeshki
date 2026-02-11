@@ -78,6 +78,40 @@ This is a backend API for an Anime and Manga fan website built using Node.js, Ex
 - **Data Validation**: Comprehensive input validation
 - **Error Handling**: Proper error responses and logging
 
+## Screenshots
+
+### Registration Page
+<!-- Add screenshot of user registration form -->
+![Registration](screenshots/registration.png)
+
+### Login Page
+<!-- Add screenshot of user login form -->
+![Login](screenshots/login.png)
+
+### Main Dashboard - Anime List
+<!-- Add screenshot of main anime listing page -->
+![Anime List](screenshots/anime-list.png)
+
+### Anime Details Page
+<!-- Add screenshot of individual anime page with reviews -->
+![Anime Details](screenshots/anime-details.png)
+
+### Manga List
+<!-- Add screenshot of manga listing page -->
+![Manga List](screenshots/manga-list.png)
+
+### User Profile
+<!-- Add screenshot of user profile page with favorites -->
+![User Profile](screenshots/user-profile.png)
+
+### Admin Panel - Add Anime
+<!-- Add screenshot of admin interface for adding new anime -->
+![Admin Add Anime](screenshots/admin-add-anime.png)
+
+### Review System
+<!-- Add screenshot of review submission form -->
+![Review System](screenshots/review-system.png)
+
 ## Technology Stack
 
 - **Backend**: Node.js, Express.js
@@ -123,13 +157,6 @@ This is a backend API for an Anime and Manga fan website built using Node.js, Ex
 - `GET /api/users/profile` - Get user profile
 - `PUT /api/users/profile` - Update profile
 - `GET /api/users/favorites` - Get favorite anime/manga
-
-### Anime
-- `GET /api/anime` - Get all anime
-- `GET /api/anime/:id` - Get anime by ID
-- `POST /api/anime` - Add new anime (admin)
-- `PUT /api/anime/:id` - Update anime (admin)
-- `DELETE /api/anime/:id` - Delete anime (admin)
 
 ### Manga
 - `GET /api/manga` - Get all manga
