@@ -27,6 +27,26 @@ const userSchema = new mongoose.Schema({
     enum: ['user', 'moderator', 'admin'],
     default: 'user'
   },
+  isEmailVerified: {
+    type: Boolean,
+    default: false
+  },
+  emailVerificationToken: {
+    type: String,
+    default: null
+  },
+  emailVerificationExpires: {
+    type: Date,
+    default: null
+  },
+  passwordResetToken: {
+    type: String,
+    default: null
+  },
+  passwordResetExpires: {
+    type: Date,
+    default: null
+  },
   favorites: [{
     type: mongoose.Schema.Types.ObjectId,
     refPath: 'favoritesModel'
@@ -53,6 +73,36 @@ userSchema.pre('save', async function(next) {
 // Compare password method
 userSchema.methods.comparePassword = async function(enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// Generate email verification token
+userSchema.methods.generateEmailVerificationToken = function() {
+  const crypto = require('crypto');
+  const verificationToken = crypto.randomBytes(32).toString('hex');
+  this.emailVerificationToken = verificationToken;
+  this.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+  return verificationToken;
+};
+
+// Generate password reset token
+userSchema.methods.generatePasswordResetToken = function() {
+  const crypto = require('crypto');
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  this.passwordResetToken = resetToken;
+  this.passwordResetExpires = Date.now() + 60 * 60 * 1000; // 1 hour
+  return resetToken;
+};
+
+// Clear email verification fields
+userSchema.methods.clearEmailVerificationFields = function() {
+  this.emailVerificationToken = null;
+  this.emailVerificationExpires = null;
+};
+
+// Clear password reset fields
+userSchema.methods.clearPasswordResetFields = function() {
+  this.passwordResetToken = null;
+  this.passwordResetExpires = null;
 };
 
 module.exports = mongoose.model('User', userSchema);

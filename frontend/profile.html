@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Animeshki | Profile</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="./index.html">Animeshki</a>
+      <nav class="nav-links">
+        <a href="./index.html">Home</a>
+        <a href="./index.html#approved">Approved Manga</a>
+        <a href="./index.html#uploadSection" id="uploadAnchor">Upload Manga</a>
+        <a href="./index.html#myMangaSection">My Manga</a>
+        <button id="logoutButton" class="button button-ghost" type="button">Logout</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="section">
+      <div class="container">
+        <div class="section-heading">
+          <h2>User Profile</h2>
+          <p>Your account information and statistics</p>
+        </div>
+        
+        <div class="panel">
+          <div class="profile-header">
+            <div class="profile-avatar">
+              <div class="avatar-placeholder">
+                <span id="avatarInitial">?</span>
+              </div>
+            </div>
+            <div class="profile-info">
+              <h1 id="profileUsername">Loading...</h1>
+              <p id="profileEmail">Loading...</p>
+              <p id="profileRole">Loading...</p>
+              <p id="profileJoined">Loading...</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Your Statistics</h3>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <h4 id="mangaCount">0</h4>
+              <p>Manga Created</p>
+            </div>
+            <div class="stat-card">
+              <h4 id="reviewCount">0</h4>
+              <p>Reviews Written</p>
+            </div>
+            <div class="stat-card">
+              <h4 id="favoriteCount">0</h4>
+              <p>Favorites</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Account Actions</h3>
+          <div class="action-buttons">
+            <button id="editProfileButton" class="button button-secondary">Edit Profile</button>
+            <button id="changePasswordButton" class="button button-ghost">Change Password</button>
+          </div>
+        </div>
+
+        <div id="profileFeedback" class="feedback hidden"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Edit Profile Modal -->
+  <div id="editProfileModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Edit Profile</h3>
+        <button class="modal-close" id="closeEditProfile">&times;</button>
+      </div>
+      <form id="editProfileForm" class="form-stack">
+        <label>
+          Username
+          <input type="text" id="editUsername" required minlength="3">
+        </label>
+        <label>
+          Email
+          <input type="email" id="editEmail" required>
+        </label>
+        <div class="form-actions">
+          <button type="button" class="button button-ghost" id="cancelEdit">Cancel</button>
+          <button type="submit" class="button button-primary" id="saveProfileButton">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Change Password Modal -->
+  <div id="changePasswordModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Change Password</h3>
+        <button class="modal-close" id="closeChangePassword">&times;</button>
+      </div>
+      <form id="changePasswordForm" class="form-stack">
+        <label>
+          Current Password
+          <input type="password" id="currentPassword" required>
+        </label>
+        <label>
+          New Password
+          <input type="password" id="newPassword" required minlength="6">
+        </label>
+        <label>
+          Confirm New Password
+          <input type="password" id="confirmNewPassword" required minlength="6">
+        </label>
+        <div class="form-actions">
+          <button type="button" class="button button-ghost" id="cancelPassword">Cancel</button>
+          <button type="submit" class="button button-primary" id="changePasswordSubmit">Change Password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>Copyright <span id="year"></span> Animeshki</p>
+      <p><a href="./index.html">Back to home</a></p>
+    </div>
+  </footer>
+
+  <script type="module" src="./js/profile.js"></script>
+</body>
+</html>

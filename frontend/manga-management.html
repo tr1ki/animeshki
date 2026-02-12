@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Animeshki | Manga Management</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="./index.html">Animeshki</a>
+      <nav class="nav-links">
+        <a href="./upload.html" id="uploadLink">Upload Manga</a>
+        <a href="./profile.html" id="profileLink">Profile</a>
+        <button id="logoutButton" class="button button-ghost" type="button">Logout</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="section">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Manga Management</h2>
+          <p>Browse and manage manga collections</p>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+          <button class="tab-button active" data-tab="approved">Approved Manga</button>
+          <button class="tab-button" data-tab="my-manga">My Manga</button>
+          <button class="tab-button" data-tab="moderation">Moderation Queue</button>
+        </div>
+
+        <!-- Approved Manga Tab -->
+        <div class="tab-content active" id="approved-tab">
+          <div class="section-heading">
+            <h3>Approved Manga</h3>
+            <p>Public catalog from <code>GET /api/manga</code>.</p>
+          </div>
+          <div id="approvedFeedback" class="feedback hidden"></div>
+          <div id="approvedGrid" class="card-grid"></div>
+        </div>
+
+        <!-- My Manga Tab -->
+        <div class="tab-content hidden" id="my-manga-tab">
+          <div class="section-heading">
+            <h3>My Manga</h3>
+            <p>Your submissions and moderation status.</p>
+          </div>
+          <div id="myMangaFeedback" class="feedback hidden"></div>
+          <div id="myMangaGrid" class="card-grid"></div>
+        </div>
+
+        <!-- Moderation Queue Tab -->
+        <div class="tab-content hidden" id="moderation-tab">
+          <div class="section-heading">
+            <h3>Moderation Queue</h3>
+            <p>Pending manga visible to moderator/admin users.</p>
+          </div>
+          <div id="moderationFeedback" class="feedback hidden"></div>
+          <div id="pendingGrid" class="card-grid"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>Copyright <span id="year"></span> Animeshki</p>
+      <p><a href="./index.html">Back to home</a></p>
+    </div>
+  </footer>
+
+  <script type="module" src="./js/manga-management.js"></script>
+</body>
+</html>

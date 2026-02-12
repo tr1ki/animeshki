@@ -1,100 +1,51 @@
-import { clearSession, getStoredUser, hydrateUser, loginUser, registerUser } from "./auth.js";
-import { hideFeedback, setButtonLoading, showFeedback } from "./ui.js";
+import { loginUser } from "./auth.js";
 
-const elements = {
-  loginForm: document.getElementById("loginForm"),
-  loginButton: document.getElementById("loginButton"),
-  loginEmail: document.getElementById("loginEmail"),
-  loginPassword: document.getElementById("loginPassword"),
-  registerForm: document.getElementById("registerForm"),
-  registerButton: document.getElementById("registerButton"),
-  registerUsername: document.getElementById("registerUsername"),
-  registerEmail: document.getElementById("registerEmail"),
-  registerPassword: document.getElementById("registerPassword"),
-  authFeedback: document.getElementById("authFeedback"),
-  logoutButton: document.getElementById("logoutButton"),
+const loginForm = document.getElementById("loginForm");
+const loginButton = document.getElementById("loginButton");
+const authFeedback = document.getElementById("authFeedback");
+
+const showFeedback = (message, isError = false) => {
+  authFeedback.textContent = message;
+  authFeedback.classList.remove("hidden", "error", "success");
+  authFeedback.classList.add(isError ? "error" : "success");
+  
+  setTimeout(() => {
+    authFeedback.classList.add("hidden");
+  }, 5000);
 };
 
-const onLoginSubmit = async (event) => {
+const setLoading = (loading) => {
+  loginButton.disabled = loading;
+  loginButton.textContent = loading ? "Signing In..." : "Sign In";
+};
+
+const handleLogin = async (event) => {
   event.preventDefault();
-  hideFeedback(elements.authFeedback);
+  
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
 
-  try {
-    setButtonLoading(elements.loginButton, true, "Signing in...");
-    const user = await loginUser({
-      email: elements.loginEmail.value.trim(),
-      password: elements.loginPassword.value,
-    });
-
-    showFeedback(elements.authFeedback, `Welcome back, ${user.username}. Redirecting...`, "success");
-    window.setTimeout(() => {
-      window.location.href = "./index.html";
-    }, 650);
-  } catch (error) {
-    showFeedback(elements.authFeedback, error.message, "error");
-  } finally {
-    setButtonLoading(elements.loginButton, false);
-  }
-};
-
-const onRegisterSubmit = async (event) => {
-  event.preventDefault();
-  hideFeedback(elements.authFeedback);
-
-  try {
-    setButtonLoading(elements.registerButton, true, "Creating...");
-    const user = await registerUser({
-      username: elements.registerUsername.value.trim(),
-      email: elements.registerEmail.value.trim(),
-      password: elements.registerPassword.value,
-    });
-
-    showFeedback(elements.authFeedback, `Account created for ${user.username}. Redirecting...`, "success");
-    window.setTimeout(() => {
-      window.location.href = "./index.html";
-    }, 650);
-  } catch (error) {
-    showFeedback(elements.authFeedback, error.message, "error");
-  } finally {
-    setButtonLoading(elements.registerButton, false);
-  }
-};
-
-const initAuthState = async () => {
-  const cached = getStoredUser();
-
-  if (!cached) {
+  if (!email || !password) {
+    showFeedback("Please fill in all fields", true);
     return;
   }
 
-  elements.logoutButton.classList.remove("hidden");
-  showFeedback(elements.authFeedback, `Current session: ${cached.username} (${cached.role})`, "info");
+  setLoading(true);
+  authFeedback.classList.add("hidden");
 
   try {
-    const user = await hydrateUser();
-
-    if (user) {
-      showFeedback(elements.authFeedback, `Current session: ${user.username} (${user.role})`, "info");
-      return;
-    }
+    const user = await loginUser({ email, password });
+    showFeedback(`Welcome back ${user.username}! Redirecting to home...`);
+    
+    setTimeout(() => {
+      window.location.href = "./index.html";
+    }, 2000);
   } catch (error) {
-    showFeedback(elements.authFeedback, error.message, "error");
+    const message = error.message || "Login failed. Please check your credentials.";
+    showFeedback(message, true);
+  } finally {
+    setLoading(false);
   }
 };
 
-const bindEvents = () => {
-  elements.loginForm.addEventListener("submit", onLoginSubmit);
-  elements.registerForm.addEventListener("submit", onRegisterSubmit);
-  elements.logoutButton.addEventListener("click", () => {
-    clearSession();
-    hideFeedback(elements.authFeedback);
-    elements.logoutButton.classList.add("hidden");
-  });
-};
-
-const init = async () => {
-  bindEvents();
-  await initAuthState();
-};
-
-init();
+loginForm.addEventListener("submit", handleLogin);

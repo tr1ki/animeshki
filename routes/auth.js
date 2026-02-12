@@ -1,5 +1,5 @@
 const express = require('express');
-const { register, login, createAdmin, createModerator, updateUserRole, getAllUsers } = require('../controllers/authController');
+const { register, login, verifyEmail, resendVerificationEmail, createAdmin, createModerator, updateUserRole, getAllUsers } = require('../controllers/authController');
 const { validateRegister, validateLogin, handleValidationErrors } = require('../utils/validation');
 const auth = require('../middleware/auth');
 const role = require('../middleware/role');
@@ -8,6 +8,10 @@ const router = express.Router();
 
 router.post('/register', validateRegister, handleValidationErrors, register);
 router.post('/login', validateLogin, handleValidationErrors, login);
+
+// Email verification routes
+router.get('/verify-email', verifyEmail);
+router.post('/resend-verification', auth, resendVerificationEmail);
 
 // Admin only routes
 router.post('/create-admin', auth, role('admin'), createAdmin);

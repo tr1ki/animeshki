@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Animeshki | Login</title>
+  <title>Animeshki | Register</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body class="auth-page">
@@ -12,7 +12,7 @@
       <a class="logo" href="./index.html">Animeshki</a>
       <nav class="nav-links">
         <a href="./index.html">Home</a>
-        <a href="./register.html">Register</a>
+        <a href="./login.html">Login</a>
       </nav>
     </div>
   </header>
@@ -20,21 +20,25 @@
   <main class="auth-main">
     <section class="container auth-layout">
       <article class="panel">
-        <h1>Login</h1>
-        <p>Use your account to upload manga and manage content.</p>
-        <form id="loginForm" class="form-stack">
+        <h1>Register</h1>
+        <p>Create a new account for posting manga.</p>
+        <form id="registerForm" class="form-stack">
+          <label>
+            Username
+            <input type="text" id="registerUsername" required minlength="3">
+          </label>
           <label>
             Email
-            <input type="email" id="loginEmail" required>
+            <input type="email" id="registerEmail" required>
           </label>
           <label>
             Password
-            <input type="password" id="loginPassword" required>
+            <input type="password" id="registerPassword" required minlength="6">
           </label>
-          <button class="button button-primary" id="loginButton" type="submit">Sign In</button>
+          <button class="button button-primary" id="registerButton" type="submit">Create Account</button>
         </form>
         <p class="auth-switch">
-          Don't have an account? <a href="./register.html">Create one</a>
+          Already have an account? <a href="./login.html">Sign in</a>
         </p>
       </article>
     </section>
@@ -50,6 +54,6 @@
     </div>
   </footer>
 
-  <script type="module" src="./js/login.js"></script>
+  <script type="module" src="./js/register.js"></script>
 </body>
 </html>
