@@ -7,8 +7,8 @@ const router = express.Router();
 
 router.get('/', getAllAnime);
 router.get('/:id', getAnimeById);
-router.post('/', auth, role('admin'), createAnime);
-router.put('/:id', auth, role('admin'), updateAnime);
+router.post('/', auth, role('admin', 'moderator'), createAnime);
+router.put('/:id', auth, role('admin', 'moderator'), updateAnime);
 router.delete('/:id', auth, role('admin'), deleteAnime);
 
 module.exports = router;

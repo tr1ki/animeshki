@@ -86,7 +86,118 @@ const login = async (req, res, next) => {
   }
 };
 
+const createAdmin = async (req, res, next) => {
+  try {
+    const { username, email, password } = req.body;
+
+    if (!username || !email || !password) {
+      return res.status(400).json({ message: 'Username, email, and password are required' });
+    }
+
+    const existingUser = await User.findOne({
+      $or: [{ email }, { username }]
+    });
+
+    if (existingUser) {
+      return res.status(409).json({ message: 'User with this email or username already exists' });
+    }
+
+    const user = await User.create({
+      username: username.trim(),
+      email: email.trim().toLowerCase(),
+      password,
+      role: 'admin'
+    });
+
+    const token = generateToken(user);
+
+    return res.status(201).json({
+      token,
+      user: mapUserResponse(user)
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+const createModerator = async (req, res, next) => {
+  try {
+    const { username, email, password } = req.body;
+
+    if (!username || !email || !password) {
+      return res.status(400).json({ message: 'Username, email, and password are required' });
+    }
+
+    const existingUser = await User.findOne({
+      $or: [{ email }, { username }]
+    });
+
+    if (existingUser) {
+      return res.status(409).json({ message: 'User with this email or username already exists' });
+    }
+
+    const user = await User.create({
+      username: username.trim(),
+      email: email.trim().toLowerCase(),
+      password,
+      role: 'moderator'
+    });
+
+    const token = generateToken(user);
+
+    return res.status(201).json({
+      token,
+      user: mapUserResponse(user)
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+const updateUserRole = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const { role } = req.body;
+
+    if (!['user', 'moderator', 'admin'].includes(role)) {
+      return res.status(400).json({ message: 'Invalid role. Must be user, moderator, or admin' });
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.role = role;
+    await user.save();
+
+    return res.json({
+      message: 'User role updated successfully',
+      user: mapUserResponse(user)
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+const getAllUsers = async (req, res, next) => {
+  try {
+    const users = await User.find({})
+      .select('_id username email role createdAt')
+      .sort({ createdAt: -1 });
+
+    return res.json({ users });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 module.exports = {
   register,
-  login
+  login,
+  createAdmin,
+  createModerator,
+  updateUserRole,
+  getAllUsers
 };

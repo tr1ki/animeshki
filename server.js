@@ -15,6 +15,7 @@ const userRoutes = require('./routes/users');
 const animeRoutes = require('./routes/anime');
 const mangaRoutes = require('./routes/manga');
 const reviewRoutes = require('./routes/reviews');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/anime', animeRoutes);
 app.use('/api/manga', mangaRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Serve frontend
 app.get('/', (req, res) => {
