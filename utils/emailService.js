@@ -8,7 +8,7 @@ const sendVerificationEmail = async (email, username, verificationToken) => {
   const msg = {
     to: email,
     from: {
-      email: 'seregagg3@gmail.com',
+      email: process.env.EMAIL_FROM,
       name: 'Animeshki'
     },
     subject: 'Verify your email address - Animeshki',
