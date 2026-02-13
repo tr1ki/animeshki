@@ -1,5 +1,6 @@
 import { clearSession, getStoredUser, hydrateUser } from "./auth.js";
-import { setYear } from "./ui.js";
+import { setYear, renderMangaCards, hideFeedback, showFeedback, formatRequestError } from "./ui.js";
+import { listApprovedManga, getMangaCoverUrl } from "./manga.js";
 
 const elements = {
   loginLink: document.getElementById("loginLink"),
@@ -10,6 +11,8 @@ const elements = {
   heroRegisterButton: document.getElementById("heroRegisterButton"),
   logoutButton: document.getElementById("logoutButton"),
   uploadAnchor: document.getElementById("uploadAnchor"),
+  approvedGrid: document.getElementById("approvedGrid"),
+  approvedFeedback: document.getElementById("approvedFeedback"),
 };
 
 const state = {
@@ -51,6 +54,28 @@ const bindEvents = () => {
   });
 };
 
+const openManga = (mangaId) => {
+  window.location.href = `./manga.html?id=${encodeURIComponent(mangaId)}`;
+};
+
+const loadApprovedManga = async () => {
+  hideFeedback(elements.approvedFeedback);
+  renderMangaCards(elements.approvedGrid, [], { emptyMessage: "Loading approved manga..." });
+
+  try {
+    const manga = await listApprovedManga();
+    renderMangaCards(elements.approvedGrid, manga, {
+      showStatus: false,
+      onOpen: (item) => openManga(item._id),
+      coverUrl: (item) => getMangaCoverUrl(item._id),
+      emptyMessage: "No approved manga yet.",
+    });
+  } catch (error) {
+    showFeedback(elements.approvedFeedback, formatRequestError(error), "error");
+    renderMangaCards(elements.approvedGrid, [], { emptyMessage: "Failed to load manga." });
+  }
+};
+
 const init = async () => {
   setYear();
   bindEvents();
@@ -62,6 +87,7 @@ const init = async () => {
   }
 
   updateAuthUi();
+  await loadApprovedManga();
 };
 
 init();
