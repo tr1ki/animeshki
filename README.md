@@ -96,6 +96,8 @@ This is a backend API for an Anime and Manga fan website built using Node.js, Ex
 <!-- Add screenshot of user profile page with favorites -->
 ![User Profile](screenshots/user-profile.png)
 
+### User Profile
+![Upload Manga](screenshots/upload-manga.png)
 
 ## Technology Stack
 
