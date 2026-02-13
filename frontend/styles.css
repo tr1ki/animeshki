@@ -604,6 +604,16 @@ textarea:focus {
   background: rgba(255, 255, 255, 0.03);
 }
 
+.reader-pdf {
+  width: min(100%, 960px);
+  height: 80vh;
+  margin: 0 auto;
+  border-radius: 10px;
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--shadow);
+  background: #0a0f1e;
+}
+
 .attachments {
   margin-top: 1.2rem;
   display: grid;

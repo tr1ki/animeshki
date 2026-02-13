@@ -221,7 +221,8 @@ const renderReader = async (files) => {
 
   const requiresAuth = state.manga?.status !== "approved";
   const imageFiles = files.filter((file) => file.kind === "image");
-  const extraFiles = files.filter((file) => file.kind !== "image");
+  const pdfFiles = files.filter((file) => file.kind === "pdf");
+  const otherFiles = files.filter((file) => !["image", "pdf"].includes(file.kind));
 
   for (const file of imageFiles) {
     const image = document.createElement("img");
@@ -241,16 +242,33 @@ const renderReader = async (files) => {
     elements.readerContainer.appendChild(image);
   }
 
-  if (imageFiles.length === 0) {
-    showFeedback(elements.readerFeedback, "No image pages found. Use attachments below.", "info");
+  for (const file of pdfFiles) {
+    const pdfFrame = document.createElement("iframe");
+    pdfFrame.className = "reader-pdf";
+    pdfFrame.title = file.originalName || "PDF Reader";
+
+    if (requiresAuth) {
+      const blob = await fetchMangaFileBlob(state.mangaId, file.id, { requireAuth: true });
+      const objectUrl = URL.createObjectURL(blob);
+      state.objectUrls.push(objectUrl);
+      pdfFrame.src = objectUrl;
+    } else {
+      pdfFrame.src = getMangaFileUrl(state.mangaId, file.id);
+    }
+
+    elements.readerContainer.appendChild(pdfFrame);
   }
 
-  if (extraFiles.length > 0) {
+  if (imageFiles.length === 0 && pdfFiles.length === 0) {
+    showFeedback(elements.readerFeedback, "No previewable pages found. Use attachments below.", "info");
+  }
+
+  if (pdfFiles.length > 0 || otherFiles.length > 0) {
     const title = document.createElement("h3");
     title.textContent = "Attachments";
     elements.attachmentsContainer.appendChild(title);
 
-    extraFiles.forEach((file) => {
+    [...pdfFiles, ...otherFiles].forEach((file) => {
       elements.attachmentsContainer.appendChild(createAttachmentLink(file, requiresAuth));
     });
   }
